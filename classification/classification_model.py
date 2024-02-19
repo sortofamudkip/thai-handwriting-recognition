@@ -1,5 +1,6 @@
 import numpy as np
 from tensorflow import keras
+from pathlib import Path
 
 DATA_AUGMENTATION_LAYERS = [
     keras.layers.RandomZoom(-0.2),
@@ -14,7 +15,7 @@ def data_augmentation(images):
 
 def create_classification_model(input_shape, num_classes, is_use_augmentation):
     inputs = keras.Input(shape=input_shape)
-    # * rescalse the input
+    # * rescale the input
     x = keras.layers.Rescaling(1./255)(inputs)
     # * apply data augmentation
     if is_use_augmentation:
@@ -34,9 +35,13 @@ def create_classification_model(input_shape, num_classes, is_use_augmentation):
     outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
     return keras.Model(inputs, outputs)
 
-def train_model(model, train_dataset, validation_dataset, epochs=15) -> keras.callbacks.History:
-    # create a token consisting of 4 random characters
-    token = ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), 4)) 
+def train_model(
+        model: keras.Model,
+        train_dataset,
+        validation_dataset,
+        model_path: Path,
+        epochs=15,
+    ) -> keras.callbacks.History:
 
     # compile the model
     model.compile(
@@ -53,14 +58,13 @@ def train_model(model, train_dataset, validation_dataset, epochs=15) -> keras.ca
     )
     # create a callback to save the model on the best validation accuracy
     model_checkpoint = keras.callbacks.ModelCheckpoint(
-        filepath=f'model-{token}.h5',
+        filepath= model_path/f'model.h5',
         monitor='val_sparse_categorical_accuracy',
         save_best_only=True,
         save_weights_only=True,
         mode='max',
     )
 
-    print(f"🟢Token: {token}")
     # train the model
     history = model.fit(
         train_dataset,
