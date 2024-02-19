@@ -176,3 +176,6 @@ curiosity
 
 # zip files
 *.zip
+
+# jobs
+jobs/
