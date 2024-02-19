@@ -48,7 +48,7 @@ def run_pipeline(
     logging.basicConfig(
         filename=output_file_name,
         encoding="utf-8",
-        level=logging.DEBUG,
+        level=logging.INFO,
         force=True,
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
