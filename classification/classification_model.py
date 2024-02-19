@@ -12,7 +12,6 @@ def data_augmentation(images):
     return images
 
 
-# define CNN classification model
 def create_classification_model(input_shape, num_classes, is_use_augmentation):
     inputs = keras.Input(shape=input_shape)
     # * rescalse the input
@@ -35,7 +34,7 @@ def create_classification_model(input_shape, num_classes, is_use_augmentation):
     outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
     return keras.Model(inputs, outputs)
 
-def train_model(model, train_dataset, validation_dataset, epochs=15):
+def train_model(model, train_dataset, validation_dataset, epochs=15) -> keras.callbacks.History:
     # create a token consisting of 4 random characters
     token = ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), 4)) 
 
@@ -58,6 +57,7 @@ def train_model(model, train_dataset, validation_dataset, epochs=15):
         monitor='val_sparse_categorical_accuracy',
         save_best_only=True,
         save_weights_only=True,
+        mode='max',
     )
 
     print(f"🟢Token: {token}")
@@ -70,6 +70,10 @@ def train_model(model, train_dataset, validation_dataset, epochs=15):
     )
     return history
 
+def load_model(model_path):
+    model = create_classification_model((64, 64, 1), 42, False)
+    model.load_weights(model_path)
+    return model
 
 if __name__ == '__main__':
     pass
