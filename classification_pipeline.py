@@ -9,6 +9,8 @@ from load_data import load_images
 import classification.classification_model as c_model
 import classification.evaluation as c_eval
 import classification.visualisation as c_vis
+from job_utils import create_output_dir
+
 # boilerplate for installing thai font
 font_path = str(Path(__file__).parent / 'fonts/NotoSerifThai-Regular.ttf')
 fm.fontManager.addfont(font_path)
@@ -16,28 +18,6 @@ prop = fm.FontProperties(fname=font_path)
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = prop.get_name()
 
-
-def create_output_dir(pipeline_name: str, skip_if_exists=False) -> Path:
-    """
-    Creates a new directory for the pipeline's output files.
-
-    Args:
-        pipeline_name (str): The name of the pipeline.
-        skip_if_exists (bool): If True, returns the existing directory instead of creating a new one.
-
-    Returns:
-        Path: The path to the newly created directory.
-    """
-    output_dir = (Path(__file__).parent / "./jobs/results" / pipeline_name).resolve()
-    if skip_if_exists and output_dir.is_dir():
-        return output_dir
-    try:
-        output_dir.mkdir(parents=True, exist_ok=False)
-        logging.info(f"Created output dir: {output_dir}")
-    except FileExistsError:
-        logging.error(f"Dir already exists: {output_dir}")
-        assert False
-    return output_dir
 
 def run_pipeline(
         pipeline_name: str,
