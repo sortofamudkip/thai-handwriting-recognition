@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-def create_output_dir(pipeline_name: str, skip_if_exists=False) -> Path:
+def create_output_dir(pipeline_name: str, folder_name: str="jobs", skip_if_exists=False) -> Path:
     """
     Creates a new directory for the pipeline's output files.
 
@@ -12,7 +12,7 @@ def create_output_dir(pipeline_name: str, skip_if_exists=False) -> Path:
     Returns:
         Path: The path to the newly created directory.
     """
-    output_dir = (Path(__file__).parent / "./jobs/results" / pipeline_name).resolve()
+    output_dir = (Path(__file__).parent / f"./{folder_name}/results" / pipeline_name).resolve()
     if skip_if_exists and output_dir.is_dir():
         return output_dir
     try:

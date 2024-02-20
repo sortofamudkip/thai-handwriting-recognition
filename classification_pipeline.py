@@ -20,12 +20,16 @@ plt.rcParams['font.sans-serif'] = prop.get_name()
 
 
 def run_pipeline(
+        model_name: str,
         pipeline_name: str,
         dataset_path: Path,
         num_epochs:int,
+        batch_size:int,
+        learning_rate:float,
+        is_use_augmentation:bool,
     ):
 
-    output_dir = create_output_dir(pipeline_name, skip_if_exists=False)
+    output_dir = create_output_dir(pipeline_name, "classification_jobs", skip_if_exists=False)
     output_file_name = str((output_dir / f"log.log").resolve())
    
     logging.basicConfig(
@@ -36,14 +40,26 @@ def run_pipeline(
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
 
+    # log and print the parameters
+    paramaters = {
+        "dataset_path": str(dataset_path),
+        "num_epochs": num_epochs,
+        "batch_size": batch_size,
+        "learning_rate": learning_rate,
+        "is_use_augmentation": is_use_augmentation,
+    }
+    logging.info(f"Parameters: {paramaters}")
+    print(f"Parameters: {paramaters}")
+
+
     # load the data
-    train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', 32)
+    train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', batch_size)
 
     # create the model
-    model = c_model.create_classification_model((64, 64, 1), len(class_names), is_use_augmentation=True)
+    model = c_model.get_classification_model(model_name, len(class_names), use_augmentation=is_use_augmentation)
 
     # train the model
-    history = c_model.train_model(model, train_dataset, validation_dataset, model_path=output_dir, epochs=num_epochs)
+    history = c_model.train_model(model, train_dataset, validation_dataset, model_path=output_dir, epochs=num_epochs,learning_rate=learning_rate)
 
     # plot the training history and loss history
     c_vis.plot_training_history(history, output_dir / 'training_history.png')
@@ -69,4 +85,12 @@ if __name__ ==  '__main__':
     print(f"🟢Token: {token}")
     PIPELINE_NAME = f"classification-{token}"
 
-    run_pipeline(PIPELINE_NAME, Path(__file__).parent / 'processed_dataset', num_epochs=15)
+    run_pipeline(
+        model_name='medium',
+        pipeline_name=PIPELINE_NAME, 
+        dataset_path=Path(__file__).parent / 'processed_dataset',
+        num_epochs=15,
+        batch_size=32,
+        learning_rate=0.001,
+        is_use_augmentation=False,
+    )
