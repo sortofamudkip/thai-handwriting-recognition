@@ -9,6 +9,13 @@ from load_data import load_images
 import classification.classification_model as c_model
 import classification.evaluation as c_eval
 import classification.visualisation as c_vis
+# boilerplate for installing thai font
+font_path = str(Path(__file__).parent / 'fonts/NotoSerifThai-Regular.ttf')
+fm.fontManager.addfont(font_path)
+prop = fm.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = prop.get_name()
+
 
 def create_output_dir(pipeline_name: str, skip_if_exists=False) -> Path:
     """
@@ -37,10 +44,6 @@ def run_pipeline(
         dataset_path: Path,
         num_epochs:int,
     ):
-    # boilerplate for installing thai font
-    font_path = 'Ayuthaya.ttf'
-    font_name = fm.FontProperties(fname=font_path).get_name()
-    plt.rc('font', family=font_name)
 
     output_dir = create_output_dir(pipeline_name, skip_if_exists=False)
     output_file_name = str((output_dir / f"log.log").resolve())
@@ -57,7 +60,7 @@ def run_pipeline(
     train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', 32)
 
     # create the model
-    model = c_model.create_classification_model((64, 64, 1), len(class_names), is_use_augmentation=False)
+    model = c_model.create_classification_model((64, 64, 1), len(class_names), is_use_augmentation=True)
 
     # train the model
     history = c_model.train_model(model, train_dataset, validation_dataset, model_path=output_dir, epochs=num_epochs)
@@ -86,4 +89,4 @@ if __name__ ==  '__main__':
     print(f"🟢Token: {token}")
     PIPELINE_NAME = f"classification-{token}"
 
-    run_pipeline(PIPELINE_NAME, Path(__file__).parent / 'processed_dataset', num_epochs=5)
+    run_pipeline(PIPELINE_NAME, Path(__file__).parent / 'processed_dataset', num_epochs=15)
