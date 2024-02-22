@@ -1,11 +1,12 @@
 import numpy as np
 from tensorflow import keras
 from pathlib import Path
-from .cnn_models import basic_model, medium_model
+from .cnn_models import basic_model, medium_model, big_model, medium_filter5_model
 
 DATA_AUGMENTATION_LAYERS = [
     keras.layers.RandomZoom(-0.2),
-    keras.layers.RandomTranslation(0.1, 0.1),
+    keras.layers.RandomTranslation(0.1, 0.1), # (0.2, 0.2)?
+    # keras.layers.RandomRotation(0.2),
 ]
 
 def data_augmentation(images):
@@ -16,6 +17,8 @@ def data_augmentation(images):
 MODELS = {
     'basic': basic_model.create_classification_model,
     'medium': medium_model.create_classification_model,
+    'medium_filter5': medium_filter5_model.create_classification_model, # 5x5 filter size
+    'big': big_model.create_classification_model,
 }
 
 def train_model(
@@ -36,17 +39,17 @@ def train_model(
 
     # create a callback to stop training if the validation accuracy does not improve for 3 epochs
     early_stopping = keras.callbacks.EarlyStopping(
-        monitor='val_sparse_categorical_accuracy',
-        patience=3,
+        monitor='val_loss',
+        patience=16,
         restore_best_weights=True
     )
     # create a callback to save the model on the best validation accuracy
     model_checkpoint = keras.callbacks.ModelCheckpoint(
         filepath= model_path/f'model.h5',
-        monitor='val_sparse_categorical_accuracy',
+        monitor='val_loss',
         save_best_only=True,
         save_weights_only=True,
-        mode='max',
+        mode='min',
     )
 
     # train the model
