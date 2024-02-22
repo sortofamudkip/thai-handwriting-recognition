@@ -42,18 +42,28 @@ def run_pipeline(
 
     # log and print the parameters
     paramaters = {
+        "model_name": model_name,
         "dataset_path": str(dataset_path),
         "num_epochs": num_epochs,
         "batch_size": batch_size,
         "learning_rate": learning_rate,
         "is_use_augmentation": is_use_augmentation,
     }
-    logging.info(f"Parameters: {paramaters}")
-    print(f"Parameters: {paramaters}")
+    logging.info(f"Parameters:\n{json.dumps(paramaters, indent=2)}")
+    print(f"Parameters:\n{json.dumps(paramaters, indent=2)}")
 
+    # determine class_names from dataset_path
+    class_names = None
+    if dataset_path.name == 'processed_dataset':
+        class_names = 'กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ'
+    elif dataset_path.name == 'processed_dataset_binary':
+        class_names = 'กฮ'
+    else:
+        raise ValueError(f"Invalid dataset path: {dataset_path}")
+    print(f"Dataset path name: {dataset_path.name}, class_names: {class_names}")
 
     # load the data
-    train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', batch_size)
+    train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', batch_size, class_names=class_names)
 
     # create the model
     model = c_model.get_classification_model(model_name, len(class_names), use_augmentation=is_use_augmentation)
@@ -68,9 +78,10 @@ def run_pipeline(
     # evaluate the model
     y_pred, y_test, raw_predictions = c_eval.get_predictions_and_labels(model, test_dataset)
 
-    # print classification report
+    # print and log classification report
     report = c_eval.get_classification_report(y_test, y_pred, class_names)
     print(report)
+    logging.info(f"Classification report:\n{report}")
 
     # plot confusion matrix
     confusion = c_eval.get_confusion_matrix(y_test, y_pred)
@@ -80,17 +91,35 @@ def run_pipeline(
         json.dump(confusion.tolist(), f)
 
 if __name__ ==  '__main__':
-    # create a token consisting of 4 random characters
-    token = ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), 4))
+    # create argparse to get the model name and other parameters
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_name', type=str, default='medium', help='The name of the model to use', choices=['basic', 'medium', 'big'])
+    parser.add_argument('--num_epochs', type=int, default=15, help='The number of epochs to train the model')
+    parser.add_argument('--batch_size', type=int, default=32, help='The batch size to use')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='The learning rate to use')
+    parser.add_argument('--is_use_augmentation', type=bool, default=True, help='Whether to use data augmentation', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--dataset', type=str, default='processed_dataset', help='The dataset to use', choices=['processed_dataset','processed_dataset_binary'])
+    # * add an optional argument for token
+    parser.add_argument('--token', type=str, default=None, help='The token to use for the pipeline name')
+    args = parser.parse_args()
+
+    # * if the token is provided, use it as the token, otherwise create a new token
+    token = args.token if args.token else ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), 4))
     print(f"🟢Token: {token}")
+
     PIPELINE_NAME = f"classification-{token}"
 
+    import tensorflow as tf
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
+
     run_pipeline(
-        model_name='medium',
+        model_name=args.model_name,
         pipeline_name=PIPELINE_NAME, 
-        dataset_path=Path(__file__).parent / 'processed_dataset',
-        num_epochs=15,
-        batch_size=32,
-        learning_rate=0.001,
-        is_use_augmentation=False,
+        dataset_path=Path(__file__).parent / args.dataset,
+        num_epochs=args.num_epochs,
+        batch_size=args.batch_size,
+        learning_rate=args.learning_rate,
+        is_use_augmentation=args.is_use_augmentation,
     )
