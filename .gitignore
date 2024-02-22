@@ -166,6 +166,7 @@ cython_debug/
 # datasets
 processed_dataset
 processed_dataset_all
+processed_dataset_binary
 curiosity
 
 # Thai font
