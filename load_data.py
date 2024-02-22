@@ -4,13 +4,11 @@ import tensorflow.keras as keras
 from pathlib import Path
 
 # load the data using tf.keras.utils.image_dataset_from_directory
-def load_images(images_path_train, images_path_test, batch_size, image_size=(64, 64), label_mode='int'):
+def load_images(images_path_train, images_path_test, batch_size, image_size=(64, 64), label_mode='int', class_names:str='กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ'):
     assert label_mode in ['int', 'categorical']
     seed = 123
     batch_size = batch_size
-    # class_names is the list of thai characters
-    THAI_ALPHABET = 'กขคฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ'
-    class_names = list(THAI_ALPHABET)
+    class_names = list(class_names)
     # get the train and validation dataset
     train_dataset, validation_dataset = keras.preprocessing.image_dataset_from_directory(
         Path(images_path_train),
@@ -34,7 +32,6 @@ def load_images(images_path_train, images_path_test, batch_size, image_size=(64,
         color_mode='grayscale',
         image_size=image_size,
         batch_size=batch_size,
-        seed=seed,
     )
     return train_dataset, validation_dataset, test_dataset, class_names
 
