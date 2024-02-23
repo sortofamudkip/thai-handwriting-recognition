@@ -169,6 +169,9 @@ processed_dataset_all
 processed_dataset_binary
 curiosity
 
+# embeddings
+embedded
+
 # Thai font
 *.ttf
 
