@@ -9,7 +9,7 @@ def create_classification_model(input_shape, num_classes, augmentation_layers:'f
         x = augmentation_layers(x)
     # * convolutional layers
     for filter_size, dropout_ratio in zip([32, 64, 128, 256], [0.1, 0.15, 0.2, 0.25]):
-        x = keras.layers.Conv2D(filter_size, 5, activation='relu')(x)
+        x = keras.layers.Conv2D(filter_size, 5, activation='relu', padding="same")(x)
         x = keras.layers.BatchNormalization()(x)
         x = keras.layers.MaxPooling2D()(x)
         x = keras.layers.Dropout(dropout_ratio)(x)
