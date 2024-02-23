@@ -10,6 +10,7 @@ import classification.classification_model as c_model
 import classification.evaluation as c_eval
 import classification.visualisation as c_vis
 from job_utils import create_output_dir
+from classification.classification_model import MODELS
 
 # boilerplate for installing thai font
 font_path = str(Path(__file__).parent / 'fonts/NotoSerifThai-Regular.ttf')
@@ -94,7 +95,7 @@ if __name__ ==  '__main__':
     # create argparse to get the model name and other parameters
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_name', type=str, default='medium', help='The name of the model to use', choices=['basic', 'medium', 'big'])
+    parser.add_argument('--model_name', type=str, default='medium', help='The name of the model to use', choices=MODELS.keys())
     parser.add_argument('--num_epochs', type=int, default=15, help='The number of epochs to train the model')
     parser.add_argument('--batch_size', type=int, default=32, help='The batch size to use')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='The learning rate to use')
