@@ -1,12 +1,13 @@
 import numpy as np
 from tensorflow import keras
 from pathlib import Path
-from .cnn_models import basic_model, medium_model, big_model, medium_filter5_model
+from .cnn_models import basic_model, medium_model, big_model, medium_filter5_model, medium_dropout50_model
 
+# in the model, the images are first normalised to the range [0, 1], then augmented, so fill_value=1 (white) is used
 DATA_AUGMENTATION_LAYERS = [
-    keras.layers.RandomZoom(-0.2),
-    keras.layers.RandomTranslation(0.1, 0.1), # (0.2, 0.2)?
-    # keras.layers.RandomRotation(0.2),
+    keras.layers.RandomZoom((-0.3,0.1), (-0.3,0.1), fill_mode='constant',fill_value=1), 
+    keras.layers.RandomTranslation((-0.2, 0.2), (-0.2, 0.2), fill_mode="constant", fill_value=1),
+    keras.layers.RandomRotation((-0.03, 0.03)),
 ]
 
 def data_augmentation(images):
@@ -19,6 +20,7 @@ MODELS = {
     'medium': medium_model.create_classification_model,
     'medium_filter5': medium_filter5_model.create_classification_model, # 5x5 filter size
     'big': big_model.create_classification_model,
+    'medium_dropout50': medium_dropout50_model.create_classification_model,
 }
 
 def train_model(
