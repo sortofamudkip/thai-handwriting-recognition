@@ -7,7 +7,7 @@ import tensorflow as tf
 from tensorflow import keras
 from load_data import load_images
 from job_utils import create_output_dir
-from gans.cgan import CGAN, GenerateImageCallback, SaveModelCallback
+from gans.cgan2 import CGAN, GenerateImageCallback, SaveModelCallback
 import logging, json
 from classification.classification_model import MODELS
 
@@ -65,10 +65,10 @@ def run_pipeline(
 
     # load the data
     train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', gan_batch_size, label_mode="categorical", class_names=class_names)
-    # scale the pixel values to be between 0 and 1
-    train_dataset = train_dataset.map(lambda x, y: (x / 255, y))
-    validation_dataset = validation_dataset.map(lambda x, y: (x / 255, y))
-    test_dataset = test_dataset.map(lambda x, y: (x / 255, y))
+    # scale the pixel values to be between 0 and 1 and reverse the pixel values (black is 1, white is 0)
+    train_dataset = train_dataset.map(lambda x, y: (1-(x/255.0), y))
+    validation_dataset = validation_dataset.map(lambda x, y: (1-(x/255.0), y))
+    test_dataset = test_dataset.map(lambda x, y: (1-(x/255.0), y))
 
     full_train_dataset = train_dataset.concatenate(validation_dataset)
 
@@ -77,8 +77,8 @@ def run_pipeline(
 
     # compile the model
     cgan.compile(
-        d_optimizer=keras.optimizers.Adam(learning_rate=gan_D_learning_rate, beta_1=0.9),
-        g_optimizer=keras.optimizers.Adam(learning_rate=gan_G_learning_rate, beta_1=0.9),
+        d_optimizer=keras.optimizers.Adam(learning_rate=gan_D_learning_rate, beta_1=0.5),
+        g_optimizer=keras.optimizers.Adam(learning_rate=gan_G_learning_rate, beta_1=0.5),
         loss_fn=keras.losses.BinaryCrossentropy(from_logits=False)
     )    # train the model
 
@@ -117,6 +117,8 @@ if __name__ == '__main__':
     # * if the token is provided, use it as the token, otherwise create a new token
     token = args.token if args.token else ''.join(np.random.choice(list('abcdefghijklmnopqrstuvwxyz'), 4))
     print(f"🟢Token: {token}")
+
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
     PIPELINE_NAME = f"classification-{token}"
 
