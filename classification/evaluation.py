@@ -26,4 +26,4 @@ def get_classification_report_pd(y_test, y_pred, class_names) -> dict:
     return DataFrame(classification_report(y_test, y_pred, target_names=class_names, output_dict=True))
 
 def get_classification_report(y_test, y_pred, class_names) -> str:
-    return classification_report(y_test, y_pred, target_names=class_names)
+    return classification_report(y_test, y_pred, target_names=class_names, zero_division=0)
