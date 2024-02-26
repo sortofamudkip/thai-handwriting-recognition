@@ -49,10 +49,10 @@ class CGAN(keras.Model):
 
     def get_discriminator(self): # num_channels=1 because the images are grayscale
         images_and_labels = keras.layers.Input(shape=(64, 64, self.num_image_channels+self.num_classes))
-        x = keras.layers.Conv2D(64, 3, strides=2, padding="same", activation="relu")(images_and_labels)
+        x = keras.layers.Conv2D(32, 3, strides=2, padding="same", activation="relu")(images_and_labels)
         x = keras.layers.Conv2D(64, 3, strides=2, padding="same", activation="relu")(x)
-        x = keras.layers.Conv2D(64, 3, strides=2, padding="same", activation="relu")(x)
-        x = keras.layers.Conv2D(64, 3, strides=2, padding="same", activation="relu")(x)
+        x = keras.layers.Conv2D(128, 3, strides=2, padding="same", activation="relu")(x)
+        x = keras.layers.Conv2D(256, 3, strides=2, padding="same", activation="relu")(x)
         x = keras.layers.Flatten()(x)
         x = keras.layers.Dense(1, activation="sigmoid")(x)
         return keras.models.Model(inputs=images_and_labels, outputs=x)
@@ -148,43 +148,6 @@ class SaveModelCallback(keras.callbacks.Callback):
         print(f"Saving models to {self.output_dir}...")
         self.model.generator.save(self.output_dir / "generator.h5")
         self.model.discriminator.save(self.output_dir / "discriminator.h5")
-
-# define a callback to generate an image after each epoch
-class GenerateImageCallback(keras.callbacks.Callback):
-    def __init__(self, generator, latent_dim: int, num_classes: int, output_dir: Path, frequency: int = 1):
-        super().__init__()
-        self.generator = generator
-        self.latent_dim = latent_dim
-        self.num_classes = num_classes
-        self.output_dir = output_dir
-        self.frequency = frequency
-
-    # create the "output" directory if it doesn't exist
-    def on_train_begin(self, logs=None):
-        self.output_dir.mkdir(exist_ok=True)
-
-    def on_epoch_end(self, epoch, logs=None):
-        if epoch % self.frequency == 0:
-            n_samples = 5
-            labels = tf.one_hot([i for i in range(5)], self.num_classes)
-            fake_samples = self.generator.predict(tf.concat([tf.random.normal((n_samples, self.latent_dim)), labels], axis=1))
-            fig, axs = plt.subplots(1, n_samples, figsize=(n_samples, 1))
-            for i in range(n_samples):
-                axs[i].imshow(fake_samples[i, :, :, 0], cmap="gray")
-                axs[i].axis("off")
-            plt.savefig(self.output_dir / f"generated_image_{epoch}.png")
-            plt.close()
-
-# define a callback to save the models after the final epoch
-class SaveModelCallback(keras.callbacks.Callback):
-    def __init__(self, model: CGAN, output_dir: Path):
-        super().__init__()
-        self.model = model
-        self.output_dir = output_dir
-
-    def on_train_end(self, logs=None):
-        self.model.generator.save(self.output_dir / "generator")
-        self.model.discriminator.save(self.output_dir / "discriminator")
 
 # define a callback to generate an image after each epoch
 class GenerateImageCallback(keras.callbacks.Callback):
