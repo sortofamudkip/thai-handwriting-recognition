@@ -185,6 +185,8 @@ embedded
 jobs/
 classification_jobs/
 gan_jobs/
+wcgan_jobs/
+wcgantanh_jobs/
 
 # output dir
 output/
