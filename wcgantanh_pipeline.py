@@ -33,7 +33,7 @@ def run_pipeline(
     classification_model_name: str,
         
 ):
-    output_dir = create_output_dir(pipeline_name, "wcgan_jobs", skip_if_exists=False)
+    output_dir = create_output_dir(pipeline_name, "wcgantanh_jobs", skip_if_exists=False)
     output_dir_gan = output_dir / 'gan'
     output_file_name = str((output_dir / f"log.log").resolve())
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
-    PIPELINE_NAME = f"classification-{token}"
+    PIPELINE_NAME = f"wcgantanh-{token}"
 
     run_pipeline(
         PIPELINE_NAME,

@@ -82,7 +82,7 @@ def run_pipeline(
 
 
     # create an instance of the CGAN
-    cgan = WCGAN_GP(latent_dim=gan_latent_dim, num_classes=len(class_names), discriminator=discriminator)
+    cgan = WCGAN_GP(latent_dim=gan_latent_dim, num_classes=len(class_names))
 
     # compile the model
     cgan.compile(
