@@ -188,3 +188,4 @@ gan_jobs/
 
 # output dir
 output/
+output_gan/
