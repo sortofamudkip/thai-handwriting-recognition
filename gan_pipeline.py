@@ -28,6 +28,7 @@ def run_pipeline(
     gan_G_learning_rate:float,
     gan_batch_size:int,
     gan_latent_dim:int,
+    use_pretrained_D:bool,
 
     classification_model_name: str,
         
@@ -45,6 +46,7 @@ def run_pipeline(
             "G_learning_rate": gan_G_learning_rate,
             "batch_size": gan_batch_size,
             "latent_dim": gan_latent_dim,
+            "use_pretrained_D": use_pretrained_D,
         },
         "classifier": {
             "model_name": classification_model_name,
@@ -72,8 +74,15 @@ def run_pipeline(
 
     full_train_dataset = train_dataset.concatenate(validation_dataset)
 
+    # if use_pretrained_D is True, load the pretrained model
+    discriminator = None
+    if use_pretrained_D:
+        pretrained_D_path = Path(__file__).parent / 'gans' / 'pretrained_discriminator.h5'
+        discriminator = keras.models.load_model(pretrained_D_path)
+
+
     # create an instance of the CGAN
-    cgan = CGAN(latent_dim=gan_latent_dim, num_classes=len(class_names))
+    cgan = CGAN(latent_dim=gan_latent_dim, num_classes=len(class_names), discriminator=discriminator)
 
     # compile the model
     cgan.compile(
@@ -106,6 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('--gan_G_learning_rate', type=float, default=0.0003, help='The learning rate for the generator')
     parser.add_argument('--gan_batch_size', type=int, default=32, help='The batch size to use for the GAN')
     parser.add_argument('--gan_latent_dim', type=int, default=128, help='The latent dimension for the GAN')
+    parser.add_argument('--use_pretrained_D', action='store_true', help='Use a pretrained discriminator model')
     parser.add_argument('--dataset', type=str, default='processed_dataset', help='The dataset to use', choices=['processed_dataset','processed_dataset_binary'])
 
     ## & classifcation model params
@@ -130,5 +140,6 @@ if __name__ == '__main__':
         args.gan_G_learning_rate,
         args.gan_batch_size,
         args.gan_latent_dim,
+        args.use_pretrained_D,
         args.classification_model_name,
     )
