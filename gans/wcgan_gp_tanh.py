@@ -66,16 +66,16 @@ class WCGAN_GP(keras.Model):
         images_and_labels = keras.layers.Input(shape=(64, 64, self.num_image_channels+self.num_classes))
         x = keras.layers.Conv2D(32, 3, strides=2, padding="same")(images_and_labels)
         x = keras.layers.LeakyReLU(alpha=0.2)(x)
-        x = keras.layers.Dropout(0.5)(x)
+        x = keras.layers.Dropout(0.1)(x)
         x = keras.layers.Conv2D(64, 3, strides=2, padding="same")(x)
         x = keras.layers.LeakyReLU(alpha=0.2)(x)
-        x = keras.layers.Dropout(0.5)(x)
+        x = keras.layers.Dropout(0.1)(x)
         x = keras.layers.Conv2D(128, 3, strides=2, padding="same")(x)
         x = keras.layers.LeakyReLU(alpha=0.2)(x)
-        x = keras.layers.Dropout(0.5)(x)
+        x = keras.layers.Dropout(0.1)(x)
         x = keras.layers.Conv2D(256, 3, strides=2, padding="same")(x)
         x = keras.layers.LeakyReLU(alpha=0.2)(x)
-        x = keras.layers.Dropout(0.5)(x)
+        x = keras.layers.Dropout(0.1)(x)
         x = keras.layers.Flatten()(x)
         x = keras.layers.Dense(1, activation=None)(x)
         return keras.models.Model(inputs=images_and_labels, outputs=x)
@@ -132,7 +132,8 @@ class WCGAN_GP(keras.Model):
         X_real, y_real = data
         batch_size = tf.shape(X_real)[0]
 
-        d_loss = self.train_D(X_real, y_real, batch_size)
+        for _ in range(3):
+            d_loss = self.train_D(X_real, y_real, batch_size)
         g_loss = self.train_G(batch_size)
 
         # & Update loss
@@ -170,7 +171,7 @@ class WCGAN_GP(keras.Model):
         return d_loss
     
     def train_G(self, batch_size):
-        factor = 2
+        factor = 1
         n_samples = batch_size * factor
 
         # & create labels that say "these are real images (WGAN: -1)" 
@@ -226,8 +227,8 @@ class GenerateImageCallback(keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         if epoch % self.frequency == 0:
-            n_samples = 5
-            labels = tf.one_hot([i for i in range(5)], self.num_classes)
+            n_samples = min(5, self.num_classes)
+            labels = tf.one_hot([i for i in range(n_samples)], self.num_classes)
             fake_samples = self.generator.predict(tf.concat([tf.random.normal((n_samples, self.latent_dim)), labels], axis=1))
             fig, axs = plt.subplots(1, n_samples, figsize=(n_samples, 1))
             for i in range(n_samples):
