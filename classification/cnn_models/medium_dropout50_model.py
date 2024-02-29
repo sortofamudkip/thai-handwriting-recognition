@@ -14,7 +14,7 @@ def create_classification_model(input_shape, num_classes, augmentation_layers:'f
         x = keras.layers.MaxPooling2D()(x)
         x = keras.layers.Dropout(0.5)(x)
     # * flatten layer
-    x = keras.layers.Flatten()(x)
+    x = keras.layers.Flatten(name="flatten")(x)
     # * fully connected layers
     x = keras.layers.Dense(512, activation='relu')(x)
     x = keras.layers.Dropout(0.5)(x)
