@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 import logging
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
 import pandas as pd
 from load_data import load_images
 import classification.classification_model as c_model
@@ -13,6 +12,7 @@ from job_utils import create_output_dir
 from classification.classification_model import MODELS
 
 # boilerplate for installing thai font
+import matplotlib.font_manager as fm
 font_path = str(Path(__file__).parent / 'fonts/NotoSerifThai-Regular.ttf')
 fm.fontManager.addfont(font_path)
 prop = fm.FontProperties(fname=font_path)
