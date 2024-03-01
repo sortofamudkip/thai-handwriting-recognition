@@ -17,7 +17,7 @@ def create_classification_model(input_shape, num_classes, augmentation_layers:'f
     x = keras.layers.Flatten()(x)
     # * fully connected layers
     x = keras.layers.Dense(512, activation='relu')(x)
-    x = keras.layers.Dropout(0.3)(x)
+    x = keras.layers.Dropout(0.1)(x)
     x = keras.layers.Dense(256, activation='relu')(x)
     # * output layer (softmax activation function for multiclass classification)
     outputs = keras.layers.Dense(num_classes, activation='softmax')(x)
