@@ -7,7 +7,7 @@ import matplotlib.font_manager as fm
 import pandas as pd
 from load_data import load_images, load_images_for_autoencoder
 from job_utils import create_output_dir
-import autoencoder.autoencoder_model as autoencoder_model
+import autoencoder.autoencoder_model2 as autoencoder_model
 
 
 # boilerplate for installing thai font
@@ -36,6 +36,16 @@ def run_autoencoder_pipeline(
         force=True,
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
+
+    # print and log the parameters as a dictionary
+    parameters = {
+        "dataset_path": str(dataset_path),
+        "num_epochs": num_epochs,
+        "batch_size": batch_size,
+        "learning_rate": learning_rate,
+    }
+    logging.info(f"Parameters:\n{json.dumps(parameters, indent=2)}")
+    print(f"Parameters:\n{json.dumps(parameters, indent=2)}")
 
     # load the data
     train_images, validation_images, test_images = load_images_for_autoencoder(dataset_path/'train', dataset_path/'test')
@@ -97,7 +107,7 @@ if __name__ ==  '__main__':
 
     run_autoencoder_pipeline(
         PIPELINE_NAME,
-        Path(__file__).parent / 'processed_dataset_binary',
+        Path(__file__).parent / 'processed_dataset',
         num_epochs=args.num_epochs,
         batch_size=args.batch_size,
         learning_rate=args.learning_rate

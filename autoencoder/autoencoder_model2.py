@@ -14,12 +14,12 @@ def build_autoencoder_model(input_shape=(64, 64, 1), learning_rate=1e-3) -> kera
     x = keras.layers.BatchNormalization()(x)
     x = keras.layers.MaxPooling2D((2, 2), padding="same")(x)
     
-    x = keras.layers.Conv2D(16, (3, 3), activation="relu", padding="same")(x)
+    x = keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same")(x)
     x = keras.layers.BatchNormalization()(x)
     encoded = keras.layers.MaxPooling2D((2, 2), padding="same")(x)
     
     # Decoder
-    x = keras.layers.Conv2D(16, (3, 3), activation="relu", padding="same")(encoded)
+    x = keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same")(encoded)
     x = keras.layers.UpSampling2D((2, 2))(x)
     
     x = keras.layers.Conv2D(32, (3, 3), activation="relu", padding="same")(x)
@@ -64,6 +64,13 @@ def train_model(
         save_weights_only=True,
         mode='min',
     )
+    # create a callback to reduce the learning rate if the validation accuracy does not decrease
+    reduce_lr = keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.2,
+        patience=3,
+        min_lr=1e-6
+    )
 
     # train the autoencoder
     history = model.fit(
@@ -72,7 +79,7 @@ def train_model(
         validation_data=(validation_images, validation_images),
         epochs=epochs,
         batch_size=batch_size,
-        callbacks=[model_checkpoint,early_stopping],
+        callbacks=[model_checkpoint,early_stopping,reduce_lr],
         verbose=2
     )
 
