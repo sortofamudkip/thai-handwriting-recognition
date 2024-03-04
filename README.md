@@ -10,8 +10,6 @@ Though there is a lot of code relating to different parts of the course, such as
 
 ## Relevant files
 ### `classification_pipeline.py`
-### `load_data.py`
-
 A script that runs the entire classification pipeline using code from `classification/`, in particular data loading, model instantiation and training, and finally evaluation and saving results.
 
 ### `classification/`
@@ -37,5 +35,11 @@ the code for tuning the (specialised) model is stored here.
 ### `classification/visualisation.py`
 This file contains the code used for visualising the learning curves and confusion matrices.
 
-## `classification/embedding_and_PCA.py`
+### `classification/embedding_and_PCA.py`
 The code for image embeddings and PCA visualisation was initially written in a Jupyter Notebook. They are kept in this file for reference but not used in the pipeline.
+
+### `load_data.py`
+Code that loads the images.
+
+## Miscellaneous
+The two contributors are both me, pushing code from either my local laptop or the HPC.
