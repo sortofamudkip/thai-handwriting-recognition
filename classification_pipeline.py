@@ -9,7 +9,7 @@ import classification.classification_model as c_model
 import classification.evaluation as c_eval
 import classification.visualisation as c_vis
 from job_utils import create_output_dir
-from classification.classification_model import MODELS
+from classification.classification_model import MODELS, mobilenet_prepare_input
 
 # boilerplate for installing thai font
 import matplotlib.font_manager as fm
@@ -65,6 +65,11 @@ def run_pipeline(
 
     # load the data
     train_dataset, validation_dataset, test_dataset, class_names = load_images(dataset_path/'train', dataset_path/'test', batch_size, class_names=class_names)
+    # if model is "mobilenet", run preprocessing for mobilenet first
+    if model_name == 'mobilenet':
+        train_dataset = mobilenet_prepare_input(train_dataset)
+        validation_dataset = mobilenet_prepare_input(validation_dataset)
+        test_dataset = mobilenet_prepare_input(test_dataset)
 
     # create the model
     model = c_model.get_classification_model(model_name, len(class_names), use_augmentation=is_use_augmentation)

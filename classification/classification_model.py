@@ -1,7 +1,8 @@
 import numpy as np
+import tensorflow as tf
 from tensorflow import keras
 from pathlib import Path
-from .cnn_models import basic_model, medium_model, big_model, medium_filter5_model, medium_dropout50_model
+from .cnn_models import basic_model, medium_model, big_model, medium_filter5_model, medium_dropout50_model, mobilenet
 
 # in the model, the images are first normalised to the range [0, 1], then augmented, so fill_value=1 (white) is used
 DATA_AUGMENTATION_LAYERS = [
@@ -21,6 +22,7 @@ MODELS = {
     'medium_filter5': medium_filter5_model.create_classification_model, # 5x5 filter size
     'big': big_model.create_classification_model,
     'medium_dropout50': medium_dropout50_model.create_classification_model,
+    'mobilenet': mobilenet.create_classification_model,
 }
 
 def train_model(
@@ -63,6 +65,16 @@ def train_model(
         verbose=2,
     )
     return history
+
+def mobilenet_prepare_input(image_dataset: tf.data.Dataset):
+    # convert to rgb
+    image_dataset = image_dataset.map(lambda image, label: (tf.image.grayscale_to_rgb(image), label))
+    # resize to 224x224
+    image_dataset = image_dataset.map(lambda image, label: (tf.image.resize(image, (224, 224)), label))
+    # run the remaining preprocessing steps for the mobilenet_v2 model
+    preprocess_input = keras.applications.mobilenet_v2.preprocess_input
+    image_dataset = image_dataset.map(lambda image, label: (preprocess_input(image), label))
+    return image_dataset
 
 def get_classification_model(model_name, num_classes, use_augmentation=False):
     global MODELS
