@@ -1,4 +1,4 @@
-# gan-thai-handwriting
+# thai-handwriting-recognition
 
 My code for the final project of the IDA-ML2 class.
 
